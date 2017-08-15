@@ -1,68 +1,69 @@
 package finiteAutomata
 import (
-  "fmt"
   "../../common"
 )
 
 type room interface{
-  openDoor(v uint8) interface{}
+  openDoor(i int, v uint8) (interface{}, error)
 }
 
 type entrance struct{}
-func (r *entrance) openDoor(v uint8) interface{}{
+func (r *entrance) openDoor(i int, v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &roomA{}
+    return &roomA{}, nil
   case uint8(1):
-    return &entrance{}
+    return &entrance{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
 type roomA struct{}
-func (r *roomA) openDoor(v uint8) interface{}{
+func (r *roomA) openDoor(i int, v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &roomA{}
+    return &roomA{}, nil
   case uint8(1):
-    return &exit{}
+    return &exit{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
 type exit struct{}
-func (r *exit) openDoor(v uint8) interface{}{
+func (r *exit) openDoor(i int, v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &roomA{}
+    return &roomA{}, nil
   case uint8(1):
-    return &entrance{}
+    return &entrance{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
-func Validate(b []byte){
+func Validate(b []byte) error{
   var state room
   state = &entrance{}
-  for _,v := range b{
-    switch tmp := state.openDoor(uint8(v)).(type){
+  for i,v := range b{
+    result, err := state.openDoor(i, uint8(v))
+    if err != nil{
+      return err
+    }
+    switch tmp := result.(type){
     case *entrance:
       state = tmp
     case *roomA:
       state = tmp
     case *exit:
       state = tmp
-    case error:
-      fmt.Println(tmp)
     }
   }
   if _, ok:=state.(*exit);ok{
-    fmt.Printf("->OK! state=%v(%T)\n", state, state)
+    return nil
   }else{
-    fmt.Printf("->Failed. state=%v(%T)\n", state, state)
+    return common.ValidationError{"failed to reach exit", 101, state, len(b)-1, uint8(b[len(b)-1])}
   }
 }
 
@@ -77,4 +78,5 @@ var TestPatterns [][]byte = [][]byte{
   {1,0,0,0,0,1},
   {0,1,1,1,0,1},
   {0,1,1,0,0,1},
+  {0,1,1,0,0,0},
 }

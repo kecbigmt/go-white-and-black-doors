@@ -1,6 +1,5 @@
 package finiteAutomata
 import (
-  "fmt"
   "../../common"
 )
 
@@ -73,8 +72,6 @@ func Validate(b []byte) error{
       state = tmp
     case *entrance:
       state = tmp
-    case error:
-      fmt.Println(tmp)
     }
   }
   if _, ok:=state.(*entrance);ok{

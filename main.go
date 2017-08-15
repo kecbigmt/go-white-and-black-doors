@@ -1,6 +1,6 @@
 package main
 import (
-  "./OldLulu_001/finiteAutomata"
+  "./oldLulu_008/finiteAutomata"
   "fmt"
 )
 

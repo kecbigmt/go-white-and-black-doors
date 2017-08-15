@@ -5,62 +5,66 @@ import (
 )
 
 type room interface{
-  openDoor(v uint8) interface{}
+  openDoor(i int,v uint8) (interface{}, error)
 }
 
 type entrance struct{}
-func (r *entrance) openDoor(v uint8) interface{}{
+func (r *entrance) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &roomA{}
+    return &roomA{}, nil
   case uint8(1):
-    return &roomB{}
+    return &roomB{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
 type roomA struct{}
-func (r *roomA) openDoor(v uint8) interface{}{
+func (r *roomA) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &entrance{}
+    return &entrance{}, nil
   case uint8(1):
-    return &roomC{}
+    return &roomC{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
 type roomB struct{}
-func (r *roomB) openDoor(v uint8) interface{}{
+func (r *roomB) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &roomC{}
+    return &roomC{}, nil
   case uint8(1):
-    return &entrance{}
+    return &entrance{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
 type roomC struct{}
-func (r *roomC) openDoor(v uint8) interface{}{
+func (r *roomC) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return &roomB{}
+    return &roomB{}, nil
   case uint8(1):
-    return &roomA{}
+    return &roomA{}, nil
   default:
-    return common.Error(r,v)
+    return 0, common.ValidationError{"invalid input", 100, r, i, v}
   }
 }
 
-func Validate(b []byte){
+func Validate(b []byte) error{
   var state room
   state = &entrance{}
-  for _,v := range b{
-    switch tmp := state.openDoor(uint8(v)).(type){
+  for i,v := range b{
+    result, err := state.openDoor(i, uint8(v))
+    if err != nil{
+      return err
+    }
+    switch tmp := result.(type){
     case *roomA:
       state = tmp
     case *roomB:
@@ -74,9 +78,9 @@ func Validate(b []byte){
     }
   }
   if _, ok:=state.(*entrance);ok{
-    fmt.Printf("->OK! state=%v(%T)\n", state, state)
+    return nil
   }else{
-    fmt.Printf("->Failed. state=%v(%T)\n", state, state)
+    return common.ValidationError{"failed to reach exit", 101, state, len(b)-1, uint8(b[len(b)-1])}
   }
 }
 

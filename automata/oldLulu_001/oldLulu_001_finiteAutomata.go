@@ -1,6 +1,6 @@
-package finiteAutomata
+package oldLulu_001
 import (
-  "../../common"
+  "github.com/kecbigmt/go-white-and-black-doors/automata/common"
 )
 
 type room interface{
@@ -15,7 +15,7 @@ func (r *entrance) openDoor(i int,v uint8) (interface{}, error){
   case uint8(1):
     return &roomB{}, nil
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -27,7 +27,7 @@ func (r *roomA) openDoor(i int,v uint8) (interface{}, error){
   case uint8(1):
     return &roomB{}, nil
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -39,7 +39,7 @@ func (r *roomB) openDoor(i int,v uint8) (interface{}, error){
   case uint8(1):
     return &roomE{}, nil
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -47,11 +47,11 @@ type roomC struct{}
 func (r *roomC) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   case uint8(1):
     return &roomF{}, nil
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -61,9 +61,9 @@ func (r *roomD) openDoor(i int,v uint8) (interface{}, error){
   case uint8(0):
     return &roomF{}, nil
   case uint8(1):
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -73,9 +73,9 @@ func (r *roomE) openDoor(i int,v uint8) (interface{}, error){
   case uint8(0):
     return &exit{}, nil
   case uint8(1):
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -83,11 +83,11 @@ type roomF struct{}
 func (r *roomF) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   case uint8(1):
     return &exit{}, nil
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
@@ -95,16 +95,16 @@ type exit struct{}
 func (r *exit) openDoor(i int,v uint8) (interface{}, error){
   switch v{
   case uint8(0):
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   case uint8(1):
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   default:
-    return 0, common.ValidationError{"invalid input", 100, r, i, v}
+    return 0, common.ValidationError{"invalid input", 100, r, i, v, nil}
   }
 }
 
 /*func input(r *room, v uint8){
-  o := r.OpenDoor(v)
+  o := r.openDoor(v)
   fmt.Println
 }*/
 
@@ -138,7 +138,7 @@ func Validate(b []byte) error{
   if _, ok:=state.(*exit);ok{
     return nil
   }else{
-    return common.ValidationError{"failed to reach exit", 101, state, len(b)-1, uint8(b[len(b)-1])}
+    return common.ValidationError{"failed to reach exit", 101, state, len(b)-1, uint8(b[len(b)-1]), nil}
   }
 }
 
